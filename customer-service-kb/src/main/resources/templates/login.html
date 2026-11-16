@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In &bull; Customer Service KB Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.25) 0%, transparent 45%),
+                        radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.18) 0%, transparent 45%),
+                        #0b0f19;
+            padding: 30px 15px;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .auth-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 480px;
+            transition: all 0.3s ease;
+        }
+        .brand-badge {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+            font-size: 1.6rem;
+        }
+        .form-control-aesthetic {
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            padding: 12px 16px 12px 42px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        .form-control-aesthetic:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+        .input-icon-box {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.15rem;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .quick-role-card {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            text-align: left;
+        }
+        .quick-role-card:hover {
+            transform: translateY(-2px);
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.15);
+        }
+        .role-icon-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-card">
+    <div class="p-4 p-sm-5">
+        <!-- Logo & Header -->
+        <div class="text-center mb-4">
+            <div class="brand-badge mb-3">
+                <i class="bi bi-headset"></i>
+            </div>
+            <h3 class="fw-bold text-dark mb-1">Customer Support Portal</h3>
+            <p class="text-secondary small mb-0">Knowledge-Based Resolution & Resolution Desk</p>
+        </div>
+
+        <!-- Alert Notifications -->
+        <div th:if="${errorMessage}" class="alert alert-danger py-2 px-3 small rounded-3 mb-3 d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-circle-fill me-2 fs-6"></i>
+            <span th:text="${errorMessage}"></span>
+        </div>
+        <div th:if="${logoutMessage}" class="alert alert-info py-2 px-3 small rounded-3 mb-3 d-flex align-items-center" role="alert">
+            <i class="bi bi-info-circle-fill me-2 fs-6"></i>
+            <span th:text="${logoutMessage}"></span>
+        </div>
+        <div th:if="${successMessage}" class="alert alert-success py-2 px-3 small rounded-3 mb-3 d-flex align-items-center" role="alert">
+            <i class="bi bi-check-circle-fill me-2 fs-6"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- Credentials Form -->
+        <form th:action="@{/login}" method="post" id="loginForm">
+            <div class="mb-3">
+                <label class="form-label">Username or Email</label>
+                <div class="position-relative">
+                    <i class="bi bi-person input-icon-box"></i>
+                    <input type="text" name="username" id="username" class="form-control form-control-aesthetic" placeholder="e.g. john_doe, agent_sarah, or admin" required autofocus>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="form-label mb-0">Password</label>
+                </div>
+                <div class="position-relative">
+                    <i class="bi bi-lock input-icon-box"></i>
+                    <input type="password" name="password" id="password" class="form-control form-control-aesthetic" placeholder="Enter password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm fs-6">
+                Sign In to Platform <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+        </form>
+
+        <div class="mt-4 text-center">
+            <span class="text-muted small">New customer? </span>
+            <a th:href="@{/register}" class="text-primary fw-semibold small text-decoration-none">
+                Register an account &rarr;
+            </a>
+        </div>
+
+        <!-- 1-Click Instant Demo Portals -->
+        <div class="mt-4 pt-3 border-top">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-bold text-uppercase text-secondary" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                    ⚡ 1-Click Instant Demo Login
+                </span>
+                <span class="badge bg-light text-muted border small">Pre-seeded</span>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+                <!-- Customer Pill -->
+                <button type="button" class="quick-role-card" onclick="fillAndSubmit('john_doe', 'customer123')">
+                    <div class="d-flex align-items-center">
+                        <div class="role-icon-avatar bg-success bg-opacity-10 text-success me-3">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark small">Customer Portal</div>
+                            <div class="text-muted" style="font-size: 0.78rem;">john_doe / customer123</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-success text-white px-2 py-1 small">Sign In &rarr;</span>
+                </button>
+
+                <!-- Agent Pill -->
+                <button type="button" class="quick-role-card" onclick="fillAndSubmit('agent_sarah', 'agent123')">
+                    <div class="d-flex align-items-center">
+                        <div class="role-icon-avatar bg-primary bg-opacity-10 text-primary me-3">
+                            <i class="bi bi-headset"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark small">Support Agent Desk</div>
+                            <div class="text-muted" style="font-size: 0.78rem;">agent_sarah / agent123</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-primary text-white px-2 py-1 small">Sign In &rarr;</span>
+                </button>
+
+                <!-- Admin Pill -->
+                <button type="button" class="quick-role-card" onclick="fillAndSubmit('admin', 'admin123')">
+                    <div class="d-flex align-items-center">
+                        <div class="role-icon-avatar bg-danger bg-opacity-10 text-danger me-3">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark small">Administrator Console</div>
+                            <div class="text-muted" style="font-size: 0.78rem;">admin / admin123</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-danger text-white px-2 py-1 small">Sign In &rarr;</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function fillAndSubmit(u, p) {
+        document.getElementById('username').value = u;
+        document.getElementById('password').value = p;
+        document.getElementById('loginForm').submit();
+    }
+</script>
+</body>
+</html>

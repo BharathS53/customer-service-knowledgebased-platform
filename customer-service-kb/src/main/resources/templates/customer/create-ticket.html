@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Support Request &bull; Customer Help Desk</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+    <div class="brand-header">
+        <div class="d-flex align-items-center">
+            <div class="brand-logo">
+                <i class="bi bi-life-preserver fs-5"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold mb-0 text-white">KB Support</h6>
+                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 small" style="font-size: 0.7rem;">CUSTOMER DESK</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-section-title">Main Portal</div>
+    <ul class="nav flex-column mb-auto">
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/customer/dashboard}">
+                <i class="bi bi-grid-fill"></i> Home Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/customer/tickets}">
+                <i class="bi bi-ticket-detailed-fill"></i> My Tickets
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" th:href="@{/customer/tickets/create}">
+                <i class="bi bi-plus-circle-fill"></i> Submit a Ticket
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/customer/knowledge}">
+                <i class="bi bi-lightbulb-fill"></i> FAQs & Solutions
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center">
+                <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+            </button>
+        </form>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="content-wrapper">
+    <header class="top-header navbar navbar-expand">
+        <span class="fw-semibold text-secondary small">
+            <i class="bi bi-plus-circle me-1"></i> Customer Help Desk &bull; New Inquiry
+        </span>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 small fw-semibold">
+                <i class="bi bi-person-check-fill me-1"></i> Verified Customer
+            </span>
+            <div class="text-end d-none d-sm-block">
+                <div class="fw-bold text-dark small" th:text="${user.fullName}">John Doe</div>
+                <div class="text-muted" style="font-size: 0.75rem;" th:text="${user.email}">john.doe@example.com</div>
+            </div>
+            <div class="brand-logo" style="width: 38px; height: 38px; font-size: 1rem;">
+                <i class="bi bi-person"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-4 flex-grow-1">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="fw-bold mb-1 text-dark">Submit a Support Request</h4>
+                        <p class="text-secondary small mb-0">Describe the technical problem and our specialists will assist you</p>
+                    </div>
+                    <a th:href="@{/customer/tickets}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Back to My Tickets
+                    </a>
+                </div>
+
+                <div th:if="${errorMessage}" class="alert alert-danger py-2 px-3 small rounded-3 mb-3 d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-circle-fill me-2 fs-6"></i>
+                    <span th:text="${errorMessage}"></span>
+                </div>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4 p-md-5">
+                        <form th:action="@{/customer/tickets/create}" th:object="${ticketForm}" method="post">
+                            <!-- Issue Subject -->
+                            <div class="mb-4">
+                                <label class="form-label">What is the issue about? <span class="text-danger">*</span></label>
+                                <input type="text" id="issueTitleInput" th:field="*{issueTitle}" class="form-control form-control-lg" placeholder="e.g. Cannot log in after updating password or VPN timeout" autocomplete="off" required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('issueTitle')}" th:errors="*{issueTitle}"></div>
+
+                                <!-- Live Ticket Deflection / Suggested Solutions Card -->
+                                <div id="deflectionCard" class="card border border-primary border-opacity-25 bg-primary bg-opacity-10 mt-3 d-none rounded-3 shadow-sm">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="bi bi-lightbulb-fill text-warning fs-5 me-2"></i>
+                                            <strong class="text-primary small">Instant Suggested Solutions (Self-Service FAQ)</strong>
+                                            <span class="badge bg-primary ms-auto" id="deflectionCount"></span>
+                                        </div>
+                                        <p class="small text-muted mb-2">Before waiting for an agent, check if one of these verified solutions solves your problem immediately:</p>
+                                        <div id="deflectionList" class="d-flex flex-column gap-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <!-- Category -->
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label class="form-label">Category <span class="text-danger">*</span></label>
+                                    <select th:field="*{categoryId}" class="form-select" required>
+                                        <option value="" disabled selected>-- Select Related Category --</option>
+                                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                                    </select>
+                                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+                                </div>
+
+                                <!-- Priority -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Urgency / Priority</label>
+                                    <select th:field="*{priority}" class="form-select">
+                                        <option value="LOW">LOW (General question / minor inquiry)</option>
+                                        <option value="MEDIUM" selected>MEDIUM (Standard operational issue)</option>
+                                        <option value="HIGH">HIGH (Impacting daily work significantly)</option>
+                                        <option value="CRITICAL">CRITICAL (Total service outage / blocker)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Issue Description -->
+                            <div class="mb-4">
+                                <label class="form-label">Detailed Description & Steps to Reproduce <span class="text-danger">*</span></label>
+                                <textarea th:field="*{issueDescription}" class="form-control" rows="6" 
+                                          placeholder="Please include exact error messages, the device/browser you are using, and the steps leading up to the error..." required></textarea>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('issueDescription')}" th:errors="*{issueDescription}"></div>
+                            </div>
+
+                            <div class="p-3 bg-light rounded-3 mb-4 small text-muted border d-flex align-items-center">
+                                <i class="bi bi-info-circle-fill text-primary fs-5 me-3"></i>
+                                <div>
+                                    <strong>Need faster help?</strong> Browse our <a th:href="@{/customer/knowledge}" target="_blank" class="text-primary text-decoration-none fw-semibold">Knowledge Base</a> to find instant answers to common troubleshooting questions.
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <a th:href="@{/customer/tickets}" class="btn btn-light px-4 text-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary px-4 fw-semibold shadow-sm">
+                                    <i class="bi bi-send-fill me-1"></i> Submit Support Ticket
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const titleInput = document.getElementById('issueTitleInput');
+    const deflectionCard = document.getElementById('deflectionCard');
+    const deflectionList = document.getElementById('deflectionList');
+    const deflectionCount = document.getElementById('deflectionCount');
+    let debounceTimer;
+
+    if (titleInput) {
+        titleInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
+            if (query.length < 3) {
+                deflectionCard.classList.add('d-none');
+                deflectionList.innerHTML = '';
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                fetch('/api/recommendations/search?query=' + encodeURIComponent(query) + '&limit=3')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network error');
+                        return response.json();
+                    })
+                    .then(articles => {
+                        if (articles && articles.length > 0) {
+                            deflectionList.innerHTML = '';
+                            deflectionCount.textContent = articles.length + ' solution(s)';
+                            articles.forEach(art => {
+                                const row = document.createElement('div');
+                                row.className = 'p-3 bg-white rounded-3 border d-flex justify-content-between align-items-center shadow-sm';
+                                row.innerHTML = `
+                                    <div class="pe-3">
+                                        <div class="d-flex align-items-center gap-1 mb-1">
+                                            <span class="badge bg-primary-subtle text-primary border small">${art.categoryName || 'General'}</span>
+                                            <span class="badge bg-success-subtle text-success border small">${art.score}% Match</span>
+                                        </div>
+                                        <div class="fw-bold text-dark small">${escapeHtml(art.title)}</div>
+                                        <div class="small text-muted text-truncate" style="max-width: 480px;">${escapeHtml(art.description || '')}</div>
+                                    </div>
+                                    <a href="/articles/${art.articleId}" target="_blank" class="btn btn-outline-primary btn-sm py-1 px-3 small text-nowrap">
+                                        Read Guide <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                    </a>
+                                `;
+                                deflectionList.appendChild(row);
+                            });
+                            deflectionCard.classList.remove('d-none');
+                        } else {
+                            deflectionCard.classList.add('d-none');
+                        }
+                    })
+                    .catch(err => {
+                        console.debug('Search recommendation error:', err);
+                        deflectionCard.classList.add('d-none');
+                    });
+            }, 300);
+        });
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
+</body>
+</html>
